@@ -1,0 +1,52 @@
+@Entity
+Used on model classes that map to a database table.
+Marks a class as a JPA entity (i.e., persistent object).
+Required for Spring Data JPA to manage database operations on it.
+
+
+@Repository
+Marks a class as a Data Access Object (DAO).
+Typically used on interfaces/classes that talk to the database.
+Helps Spring recognize it as a component that should be auto-detected and injected.
+Also makes exception translation possible (wraps DB errors into Spring exceptions).
+
+
+@Service
+Marks a class as a service-layer bean — usually contains business logic.
+Like @Component, but semantically clearer (used in the service layer).
+Spring auto-detects it and injects it into other beans.
+
+
+@Component
+Tells Spring: “Please detect this class and manage it in the application context.”
+Enables automatic dependency injection via @Autowired, constructor injection, etc.
+It’s the base annotation for more specific ones like @Service, @Repository, and @Controller.
+
+
+In Spring, the Spring Framework itself creates beans — specifically,
+the Spring IoC (Inversion of Control) container, also called the ApplicationContext.
+
+How IOC (Inversion of Control) works:
+You annotate your class with @Component, @Service, @Repository, or @Controller.
+Spring scans your project (thanks to @ComponentScan in your config or @SpringBootApplication).
+Spring creates an object (bean) of that class during application startup.
+Spring stores the bean inside its ApplicationContext (bean container).
+When needed, Spring injects the bean automatically where required (@Autowired, constructor injection, etc).
+
+-------------------------------------------------------------
+You build your app with classes like:
+    @Component (for utilities)
+    @Service (for business logic)
+    @Repository (for DB access)
+    @Controller (for REST APIs)
+
+You annotate them with these stereotype annotations.
+Spring Boot (via @SpringBootApplication) automatically:
+    Triggers @ComponentScan
+    Which tells Spring to scan your project for these annotations.
+
+Spring finds your annotated classes and:
+    Creates beans (i.e., single instances) for each.
+    Stores them in the ApplicationContext (Spring’s container).
+    Injects them wherever you need them (via @Autowired, constructor, or setter).
+--------------------------------------------------------------
