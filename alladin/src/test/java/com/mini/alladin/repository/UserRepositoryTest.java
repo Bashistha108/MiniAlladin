@@ -16,6 +16,7 @@ import java.util.Optional;
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class UserRepositoryTest {
 
+    // Not mocking anything testing real behaviour if UserRepository
     @Autowired
     private UserRepository userRepository;
 
