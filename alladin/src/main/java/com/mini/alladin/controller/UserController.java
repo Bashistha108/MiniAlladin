@@ -21,13 +21,13 @@ public class UserController {
     }
 
 
-    @PostMapping
+    @PostMapping("/create-user")
     public UserDTO createUser(@RequestBody UserCreateDTO dto) {
         return userService.createUser(dto);
     }
 
 
-    @GetMapping
+    @GetMapping("/get-all")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
