@@ -1,0 +1,14 @@
+- [ ] Unit Testing + Mockito
+- [ ] Github
+- [ ] Security Implementation
+- [ ] Unit Testing + Mockito
+- [ ] Github
+- [ ] Stock Management
+- [ ] Unit Testing + Mockito
+- [ ] Github
+- [ ] Deploy Online
+- [ ] Other Features ....
+- [ ] Continue Steps
+- [ ] Docker
+- [ ] Jira
+- [ ] CI / CD

@@ -117,10 +117,13 @@ public class UserServiceImplementation implements UserService {
     private UserDTO toUserDto(User user){
         UserDTO userDTO = new UserDTO();
         userDTO.setUserId(user.getUserId());
-        userDTO.setFirst_name(user.getFirstName());
-        userDTO.setLast_name(user.getLastName());
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
         userDTO.setEmail(user.getEmail());
         userDTO.setRole(user.getRole().getRoleName());
+        userDTO.setActive(user.isActive());
+        userDTO.setUpdatedAt(user.getUpdatedAt());
+        userDTO.setCreatedAt(user.getCreatedAt());
         return userDTO;
     }
 
