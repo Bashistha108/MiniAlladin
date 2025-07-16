@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder // to build a in memory User for Unit Testing
 @Table(name = "users")
 public class User {
 
