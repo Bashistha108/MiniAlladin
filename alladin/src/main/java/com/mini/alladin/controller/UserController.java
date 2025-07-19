@@ -3,11 +3,15 @@ package com.mini.alladin.controller;
 
 import com.mini.alladin.dto.UserCreateDTO;
 import com.mini.alladin.dto.UserDTO;
+import com.mini.alladin.entity.User;
 import com.mini.alladin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,6 +23,8 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
+
 
 
     @PostMapping("/create-user")
@@ -57,6 +63,13 @@ public class UserController {
     @DeleteMapping("/delete-by-email/{email}")
     public void deleteUserByEmail(@PathVariable String email) {
         userService.deleteUserByEmail(email);
+    }
+
+
+    @PostMapping("/set-password")
+    public String setPassword(@RequestParam String newPassword) {
+        userService.setPasswordForLoggedInUser(newPassword);
+        return "Password updated successfully";
     }
 
 }
