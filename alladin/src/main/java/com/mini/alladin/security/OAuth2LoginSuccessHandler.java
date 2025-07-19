@@ -5,6 +5,7 @@ import com.mini.alladin.entity.User;
 import com.mini.alladin.repository.RoleRepository;
 import com.mini.alladin.repository.UserRepository;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         // Send token via redirect (temporary demo)
         //  redirects the user to a new URL after successful login, and attaches the JWT token in the URL as a query parameter.
         // The frontend can now read the token from the URL and store it in localStorage or cookie.
-        response.sendRedirect("/token?jwt=" + jwt);
+        Cookie cookie  = new Cookie("jwt", jwt);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        // Redirect to home page
+        response.sendRedirect("/trader-dashboard");
     }
 }

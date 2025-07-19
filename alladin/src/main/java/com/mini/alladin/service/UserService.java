@@ -21,4 +21,6 @@ public interface UserService {
     void deleteUserById(int id);
     void deleteUserByEmail(String email);
 
+
+    void setPasswordForLoggedInUser(String newPassword);
 }

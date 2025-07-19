@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+<h1>Welcome to Mini-Alladin</h1>
+
+<h3>Set / Change Password</h3>
+<form th:action="@{/api/users/set-password}" method="post">
+    <input type="password" name="newPassword" placeholder="New Password" required><br>
+    <button type="submit">Change Password</button>
+</form>
+</body>
+</html>
