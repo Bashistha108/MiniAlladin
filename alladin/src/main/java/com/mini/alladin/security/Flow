@@ -1,0 +1,11 @@
+🔐 Google Login → ✅ CustomOAuth2UserService
+                          ↓
+                  ✅ OAuth2LoginSuccessHandler → Save user + return JWT
+                          ↓
+              🧾 JWT sent to client (browser or frontend)
+
+➡️ Future Requests:
+    🔁 JwtAuthenticationFilter → Checks if token is valid
+                               → Allows access to protected routes
+
+
