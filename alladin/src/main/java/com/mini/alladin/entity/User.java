@@ -55,4 +55,12 @@ public class User {
     @Column(name = "profile_picture")
     private String profilePicture;
 
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
 }

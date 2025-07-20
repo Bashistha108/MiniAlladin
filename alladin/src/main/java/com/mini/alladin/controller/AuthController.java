@@ -46,25 +46,37 @@ public class AuthController {
                         @RequestParam String password,
                         HttpServletResponse response) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwt = jwtTokenProvider.generateToken(userDetails);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        Cookie jwtCookie = new Cookie("jwt", jwt);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(86400);
-        response.addCookie(jwtCookie);
+            if (!userDetails.isEnabled()) {
+                return "redirect:/login?blocked=true"; // ✅ show blocked msg
+            }
 
-        User user = userRepository.findByEmail(email).orElseThrow();
+            String jwt = jwtTokenProvider.generateToken(userDetails);
 
-        if (user.getRole().getRoleId() == 2) {
-            return "redirect:/trader/trader-dashboard";
-        } else {
-            return "redirect:/admin/admin-dashboard";
+            Cookie jwtCookie = new Cookie("jwt", jwt);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setPath("/");
+            jwtCookie.setMaxAge(86400);
+            response.addCookie(jwtCookie);
+
+            User user = userRepository.findByEmail(email).orElseThrow();
+
+            if (user.getRole().getRoleId() == 2) {
+                return "redirect:/trader/trader-dashboard";
+            } else {
+                return "redirect:/admin/admin-dashboard";
+            }
+
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+            return "redirect:/login?error=true"; // ✅ show invalid credentials
+        } catch (Exception e) {
+            return "redirect:/login?error=true"; // fallback
         }
     }
 

@@ -28,4 +28,7 @@ public interface UserService {
     void toggleUserRole(int id);
     void updateUserFromDto(int id, UserDTO userDTO);
 
+
+    void unblockUserById(int id);
+
 }

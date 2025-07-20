@@ -6,6 +6,19 @@
 <body>
 <h2>Login</h2>
 
+
+<div th:if="${param.blocked != null and param.blocked[0] == 'true'}">
+    <p style="color: red;">❌ Your account is blocked. Please check your email to unblock it.</p>
+</div>
+<div th:if="${param.error}">
+    <p style="color: red;">❌ Invalid credentials. Please try again.</p>
+</div>
+<div th:if="${param.unblocked}">
+    <p style="color: green;">✅ Your account has been unblocked. You may now log in.</p>
+</div>
+
+
+
 <form th:action="@{/auth/login}" method="POST">
     <input type="text" name="email" placeholder="Email" required />
     <input type="password" name="password" placeholder="Password" required />
@@ -25,6 +38,7 @@
 <a th:href="@{/register}">
     <button>Register Account</button>
 </a>
+
 
 </body>
 </html>
