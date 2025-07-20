@@ -1,7 +1,7 @@
 # Mini-Alladin 🧞
 
 A simplified investment management system inspired by BlackRock's Aladdin.  
-Built with Java, Websocket, Thymelead,  Spring Boot, MySQL, and modern software architecture practices.
+Built with Java, Websocket, Thymeleaf,  Spring Boot, MySQL, and modern software architecture practices.
 
 ## 📦 Features
 
