@@ -18,5 +18,6 @@ public class UserCreateDTO {
     private String email;
     private String password;
     private String role;
+    private boolean active;
     private String profilePicture;
 }
