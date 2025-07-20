@@ -65,11 +65,6 @@ public class UserController {
         userService.deleteUserByEmail(email);
     }
 
-
-    @PostMapping("/set-password")
-    public String setPassword(@RequestParam String newPassword) {
-        userService.setPasswordForLoggedInUser(newPassword);
-        return "Password updated successfully";
-    }
+    
 
 }

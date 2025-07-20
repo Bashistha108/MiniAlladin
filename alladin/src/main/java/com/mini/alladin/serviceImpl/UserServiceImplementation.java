@@ -9,8 +9,11 @@ import com.mini.alladin.repository.UserRepository;
 import com.mini.alladin.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -115,10 +118,31 @@ public class UserServiceImplementation implements UserService {
         userRepository.deleteByEmail(email);
     }
 
-    @Override
     @Transactional
+    @Override
     public void setPasswordForLoggedInUser(String newPassword) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User is not authenticated");
+        }
+
+        Object principal = authentication.getPrincipal();
+        String email = null;
+
+        if (principal instanceof OAuth2User oAuth2User) {
+            email = oAuth2User.getAttribute("email");
+        } else if (principal instanceof UserDetails userDetails) {
+            email = userDetails.getUsername();
+        } else if (principal instanceof String str && !str.equals("anonymousUser")) {
+            email = str;
+        }
+
+        if (email == null) {
+            throw new RuntimeException("No email found in authentication");
+        }
+
+        System.out.println("✅ Logged-in email: " + email);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -126,6 +150,42 @@ public class UserServiceImplementation implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    @Override
+    @Transactional
+    public void toggleUserActive(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        user.setActive(!user.isActive());
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void toggleUserRole(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        String currentRole = user.getRole().getRoleName();
+        String newRole = currentRole.equals("ADMIN") ? "TRADER" : "ADMIN";
+
+        Role role = roleRepository.findByRoleName(newRole)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + newRole));
+        user.setRole(role);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void updateUserFromDto(int id, UserDTO userDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setEmail(userDTO.getEmail()); // optional, if allowed to change
+        userRepository.save(user);
+    }
+
+
 
     private UserDTO toUserDto(User user){
         UserDTO userDTO = new UserDTO();
