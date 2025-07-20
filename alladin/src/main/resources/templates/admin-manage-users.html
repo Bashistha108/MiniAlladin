@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Admin - Manage Users</title>
+  <meta charset="UTF-8" />
+</head>
+<body>
+<h2>User Management</h2>
+
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Email</th>
+    <th>Role</th>
+    <th>Active</th>
+    <th>Created At</th>
+    <th>Update At</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="user : ${users}">
+    <td th:text="${user.userId}"></td>
+    <td th:text="${user.firstName}"></td>
+    <td th:text="${user.lastName}"></td>
+    <td th:text="${user.email}"></td>
+    <td th:text="${user.role}"></td>
+    <td th:text="${user.isActive}"></td>
+    <td th:text="${user.createdAt}"></td>
+    <td th:text="${user.updatedAt}"></td>
+
+    <td>
+      <!-- Toggle Role -->
+      <form th:action="@{'/admin/manage-users/toggle-role/' + ${user.userId}}" method="post" style="display:inline;">
+        <button type="submit"
+                th:text="${user.role == 'ADMIN'} ? 'Make Trader' : 'Make Admin'"
+                th:disabled="${#authentication.name == user.email}">
+        </button>
+      </form>
+
+      <!-- Toggle Block -->
+      <form th:action="@{'/admin/manage-users/toggle-block/' + ${user.userId}}" method="post" style="display:inline;">
+        <button type="submit"
+                th:text="${user.isActive} ? 'Block' : 'Unblock'"
+                th:disabled="${#authentication.name == user.email}">
+        </button>
+      </form>
+
+      <!-- Delete (not allowed for self) -->
+      <form th:action="@{'/admin/manage-users/delete/' + ${user.userId}}" method="post" style="display:inline;"
+            onsubmit="return confirm('Are you sure?');">
+        <button type="submit" th:disabled="${#authentication.name == user.email}">Delete</button>
+      </form>
+      <!-- Update (only self) -->
+      <a th:if="${#authentication.name == user.email}"
+         th:href="@{'/admin/manage-users/update/' + ${user.userId}}">
+        <button> Update Profile</button>
+      </a>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<footer><a href="/admin/admin-dashboard">Dashboard ---> </a></footer>
+</body>
+</html>

@@ -1,12 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Mini-Alladin Login</title>
+    <title>Login</title>
 </head>
 <body>
-<h2>Welcome to Mini-Alladin</h2>
+<h2>Login</h2>
+
+<form th:action="@{/auth/login}" method="POST">
+    <input type="text" name="email" placeholder="Email" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+</form>
+
+<hr>
+
+<!-- Google Login -->
 <a href="/oauth2/authorization/google">
     <button>Login with Google</button>
 </a>
+
+<hr>
+
+<!-- Register -->
+<a th:href="@{/register}">
+    <button>Register Account</button>
+</a>
+
 </body>
 </html>
