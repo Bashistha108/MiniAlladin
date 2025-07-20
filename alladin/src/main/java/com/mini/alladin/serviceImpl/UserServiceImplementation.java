@@ -6,12 +6,14 @@ import com.mini.alladin.entity.Role;
 import com.mini.alladin.entity.User;
 import com.mini.alladin.repository.RoleRepository;
 import com.mini.alladin.repository.UserRepository;
+import com.mini.alladin.service.EmailService;
 import com.mini.alladin.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -27,13 +29,18 @@ public class UserServiceImplementation implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    private final EmailService emailService;
+
+
     @Autowired
     public UserServiceImplementation(UserRepository userRepository,
                                      RoleRepository roleRepository,
-                                     PasswordEncoder passwordEncoder){
+                                     PasswordEncoder passwordEncoder,
+                                     EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     /*
@@ -152,12 +159,18 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    @Transactional
     public void toggleUserActive(int id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        user.setActive(!user.isActive());
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        boolean newStatus = !user.isActive();
+        user.setActive(newStatus);
         userRepository.save(user);
+
+        if (!newStatus) { // Just got blocked
+            String unblockLink = "http://localhost:8080/api/users/unblock/" + user.getUserId();
+            emailService.sendUnblockEmail(user.getEmail(), unblockLink);
+        }
     }
 
     @Override
@@ -184,6 +197,16 @@ public class UserServiceImplementation implements UserService {
         user.setEmail(userDTO.getEmail()); // optional, if allowed to change
         userRepository.save(user);
     }
+
+    @Transactional
+    @Override
+    public void unblockUserById(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
 
 
 

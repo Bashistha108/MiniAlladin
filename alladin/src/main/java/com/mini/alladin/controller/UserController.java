@@ -6,9 +6,11 @@ import com.mini.alladin.dto.UserDTO;
 import com.mini.alladin.entity.User;
 import com.mini.alladin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +67,18 @@ public class UserController {
         userService.deleteUserByEmail(email);
     }
 
-    
+
+    @GetMapping("/unblock/{id}")
+    @ResponseBody
+    public String unblockUser(@PathVariable int id) {
+        userService.unblockUserById(id);
+        return "✅ Your account has been successfully unblocked. You can now log in.";
+    }
+
+
+
+
+
+
 
 }
