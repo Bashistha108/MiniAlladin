@@ -23,4 +23,9 @@ public interface UserService {
 
 
     void setPasswordForLoggedInUser(String newPassword);
+
+    void toggleUserActive(int id);
+    void toggleUserRole(int id);
+    void updateUserFromDto(int id, UserDTO userDTO);
+
 }
