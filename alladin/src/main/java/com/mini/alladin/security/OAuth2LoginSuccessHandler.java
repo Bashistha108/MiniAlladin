@@ -86,7 +86,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        // Redirect to home page
-        response.sendRedirect("/trader-dashboard");
+        System.out.println("✅ Google login successful!");
+        System.out.println("Logged in user: " + email);
+
+        // Redirect to dashboard
+        if (user.getRole().getRoleId() == 2) {
+            response.sendRedirect("/trader/trader-dashboard");
+        } else {
+            response.sendRedirect("/admin/admin-dashboard");
+        }
+
     }
 }
