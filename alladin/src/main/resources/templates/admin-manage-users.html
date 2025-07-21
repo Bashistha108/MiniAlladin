@@ -2,24 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>Admin - Manage Users</title>
-  <meta charset="UTF-8" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<h2>User Management</h2>
-
-
-<table border="1">
-  <thead>
+<body class="container mt-5">
+<h2 class="mb-4">User Management</h2>
+<div class="mb-3">
+  <a th:href="@{/admin/manage-users/adduser}" class="btn btn-success">+ Add New User</a>
+</div>
+<table class="table table-bordered table-hover">
+  <thead class="table-light">
   <tr>
-    <th>ID</th>
-    <th>First Name</th>
-    <th>Last Name</th>
-    <th>Email</th>
-    <th>Role</th>
-    <th>Active</th>
-    <th>Created At</th>
-    <th>Update At</th>
-    <th>Actions</th>
+    <th>ID</th><th>First</th><th>Last</th><th>Email</th>
+    <th>Role</th><th>Active</th><th>Created</th><th>Updated</th><th>Actions</th>
   </tr>
   </thead>
   <tbody>
@@ -32,40 +26,34 @@
     <td th:text="${user.isActive}"></td>
     <td th:text="${user.createdAt}"></td>
     <td th:text="${user.updatedAt}"></td>
-
     <td>
-      <!-- Toggle Role -->
-      <form th:action="@{'/admin/manage-users/toggle-role/' + ${user.userId}}" method="post" style="display:inline;">
-        <button type="submit"
-                th:text="${user.role == 'ADMIN'} ? 'Make Trader' : 'Make Admin'"
-                th:disabled="${#authentication.name == user.email}">
-        </button>
-      </form>
+      <a th:href="@{'/admin/manage-users/update/' + ${user.userId}}"
+         class="btn btn-primary btn-l mb-1 me-1">Update</a>
 
-      <!-- Toggle Block -->
-      <form th:action="@{'/admin/manage-users/toggle-block/' + ${user.userId}}" method="post" style="display:inline;">
+      <form th:action="@{'/admin/manage-users/toggle-block/' + ${user.userId}}"
+            method="post" style="display:inline;">
         <button type="submit"
+                th:classappend="${user.isActive} ? 'btn-info' : 'btn-success'"
+                class="btn btn-l mb-1 me-1"
                 th:text="${user.isActive} ? 'Block' : 'Unblock'"
                 th:disabled="${#authentication.name == user.email}">
         </button>
       </form>
 
-      <!-- Delete (not allowed for self) -->
-      <form th:action="@{'/admin/manage-users/delete/' + ${user.userId}}" method="post" style="display:inline;"
+      <form th:action="@{'/admin/manage-users/delete/' + ${user.userId}}"
+            method="post" style="display:inline;"
             onsubmit="return confirm('Are you sure?');">
-        <button type="submit" th:disabled="${#authentication.name == user.email}">Delete</button>
+        <button type="submit"
+                class="btn btn-danger btn-l mb-1"
+                th:disabled="${#authentication.name == user.email}">
+          Delete
+        </button>
       </form>
-      <!-- Update (only self) -->
-      <a th:if="${#authentication.name == user.email}"
-         th:href="@{'/admin/manage-users/update/' + ${user.userId}}">
-        <button> Update Profile</button>
-      </a>
     </td>
+
   </tr>
   </tbody>
 </table>
-<br>
-<br>
-<footer><a href="/admin/admin-dashboard">Dashboard ---> </a></footer>
+<a href="/admin/admin-dashboard" class="btn btn-secondary mt-3">← Back to Dashboard</a>
 </body>
 </html>
