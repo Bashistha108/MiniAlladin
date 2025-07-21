@@ -2,18 +2,58 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 60px;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+    </style>
 </head>
 <body>
-<h2>Register Account</h2>
 
-<form th:action="@{/auth/register}" method="post">
-    <input type="text" name="firstName" placeholder="First Name" required /><br>
-    <input type="text" name="lastName" placeholder="Last Name"/><br>
-    <input type="email" name="email" placeholder="Email" required /><br>
-    <input type="password" name="password" placeholder="Password" required /><br>
-    <button type="submit">Register</button>
-</form>
+<div class="form-container">
+    <h2 class="text-center mb-4">Create Account</h2>
 
-<p><a th:href="@{/login}">Back to Login</a></p>
+    <form th:action="@{/auth/register}" th:object="${userCreateDTO}" method="post">
+        <div class="mb-3">
+            <label class="form-label">First Name</label>
+            <input type="text" th:field="*{firstName}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            <input type="text" th:field="*{lastName}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" th:field="*{email}" class="form-control" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Password</label>
+            <input type="password" th:field="*{password}" class="form-control" required>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success">Register</button>
+            <a th:href="@{/login}" class="btn btn-secondary">← Back to Login</a>
+        </div>
+    </form>
+
+    <div class="text-center mt-3 text-danger" th:if="${param.error}">
+        Email already exists!
+    </div>
+</div>
+
 </body>
 </html>

@@ -1,7 +1,9 @@
 package com.mini.alladin.controller;
 
 
+import com.mini.alladin.dto.UserCreateDTO;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -18,8 +20,10 @@ public class AuthPageController {
     }
 
     @GetMapping("/register")
-    public String registerPage() {
+    public String registerPage(Model model) {
+        model.addAttribute("userCreateDTO", new UserCreateDTO());
         return "register";
     }
+
 
 }
