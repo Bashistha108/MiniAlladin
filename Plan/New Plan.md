@@ -1,9 +1,7 @@
 
-User Management complete
 
-1. Fully CRUD for Admin
 
-2. Update feature for each user
+
 
 3. Add bootstrap to make smooth.
 

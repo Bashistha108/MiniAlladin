@@ -1,23 +1,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Update Profile</title>
+    <title>Update User</title>
     <meta charset="UTF-8">
 </head>
 <body>
-<h2>Update Your Profile</h2>
+<h2>Update User</h2>
 
 <form th:action="@{'/admin/manage-users/update/' + ${user.userId}}" th:object="${user}" method="post">
-    <label>First Name:</label>
+    <label>First Name:</label><br>
     <input type="text" th:field="*{firstName}" required/><br><br>
 
-    <label>Last Name:</label>
+    <label>Last Name:</label><br>
     <input type="text" th:field="*{lastName}" required/><br><br>
 
-    <label>Email:</label>
+    <label>Email:</label><br>
     <input type="email" th:field="*{email}" required/><br><br>
 
-    <label>New Password (leave empty to keep current):</label>
+
+    <!-- Role dropdown visible to others -->
+    <th:block th:if="${#authentication.name != user.email}">
+        <label>Role:</label><br>
+        <select th:field="*{role}">
+            <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">ADMIN</option>
+            <option value="TRADER" th:selected="${user.role == 'TRADER'}">TRADER</option>
+        </select><br><br>
+    </th:block>
+
+    <!-- Hidden input for self (so value still submitted) -->
+    <th:block th:if="${#authentication.name == user.email}">
+        <input type="hidden" th:field="*{role}"/>
+    </th:block>
+
+    <label>New Password (leave blank to keep current):</label><br>
     <input type="password" name="newPassword"/><br><br>
 
     <button type="submit">Update</button>

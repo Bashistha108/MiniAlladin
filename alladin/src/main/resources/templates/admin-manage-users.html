@@ -6,8 +6,11 @@
 </head>
 <body>
 <h2>User Management</h2>
+<div style="margin-top: 10px;">
+  <a th:href="@{/admin/manage-users/adduser}">+ Add New User</a>
+</div>
 
-
+<br><br>
 <table border="1">
   <thead>
   <tr>
@@ -18,7 +21,7 @@
     <th>Role</th>
     <th>Active</th>
     <th>Created At</th>
-    <th>Update At</th>
+    <th>Updated At</th>
     <th>Actions</th>
   </tr>
   </thead>
@@ -34,15 +37,12 @@
     <td th:text="${user.updatedAt}"></td>
 
     <td>
-      <!-- Toggle Role -->
-      <form th:action="@{'/admin/manage-users/toggle-role/' + ${user.userId}}" method="post" style="display:inline;">
-        <button type="submit"
-                th:text="${user.role == 'ADMIN'} ? 'Make Trader' : 'Make Admin'"
-                th:disabled="${#authentication.name == user.email}">
-        </button>
-      </form>
+      <!-- Update -->
+      <a th:href="@{'/admin/manage-users/update/' + ${user.userId}}">
+        <button type="button">Update</button>
+      </a>
 
-      <!-- Toggle Block -->
+      <!-- Block/Unblock -->
       <form th:action="@{'/admin/manage-users/toggle-block/' + ${user.userId}}" method="post" style="display:inline;">
         <button type="submit"
                 th:text="${user.isActive} ? 'Block' : 'Unblock'"
@@ -50,22 +50,17 @@
         </button>
       </form>
 
-      <!-- Delete (not allowed for self) -->
+      <!-- Delete -->
       <form th:action="@{'/admin/manage-users/delete/' + ${user.userId}}" method="post" style="display:inline;"
             onsubmit="return confirm('Are you sure?');">
         <button type="submit" th:disabled="${#authentication.name == user.email}">Delete</button>
       </form>
-      <!-- Update (only self) -->
-      <a th:if="${#authentication.name == user.email}"
-         th:href="@{'/admin/manage-users/update/' + ${user.userId}}">
-        <button> Update Profile</button>
-      </a>
     </td>
   </tr>
   </tbody>
 </table>
-<br>
-<br>
-<footer><a href="/admin/admin-dashboard">Dashboard ---> </a></footer>
+
+<br><br>
+<footer><a href="/admin/admin-dashboard">← Back to Dashboard</a></footer>
 </body>
 </html>

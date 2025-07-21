@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add New User</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>Add New User</h2>
+
+<form th:action="@{/admin/manage-users/adduser}" th:object="${userCreateDTO}" method="post">
+
+    <label th:for="*{firstName}">First Name:</label><br>
+    <input type="text" th:field="*{firstName}" required/><br><br>
+
+    <label th:for="*{lastName}">Last Name:</label><br>
+    <input type="text" th:field="*{lastName}" required/><br><br>
+
+    <label th:for="*{email}">Email:</label><br>
+    <input type="email" th:field="*{email}" required/><br><br>
+
+    <label th:for="*{password}">Password:</label><br>
+    <input type="password" th:field="*{password}" required/><br><br>
+
+    <label th:for="*{role}">Role:</label><br>
+    <select th:field="*{role}">
+        <option value="TRADER">Trader</option>
+        <option value="ADMIN">Admin</option>
+    </select><br><br>
+
+    <button type="submit">Create User</button>
+</form>
+
+
+<br>
+<a th:href="@{/admin/manage-users}">← Back to User Management</a>
+</body>
+</html>

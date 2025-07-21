@@ -31,4 +31,7 @@ public interface UserService {
 
     void unblockUserById(int id);
 
+    void setPasswordForUserById(int id, String newPassword);
+
+
 }
