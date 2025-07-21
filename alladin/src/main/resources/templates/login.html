@@ -18,8 +18,9 @@
         ✅ Your account was unblocked. Please log in again.
     </p>
 </div>
-
-
+<p th:if="${param.emailChanged}" style="color: green;">
+    ✅ Email updated. Please log in again.
+</p>
 
 
 <form th:action="@{/auth/login}" method="POST">

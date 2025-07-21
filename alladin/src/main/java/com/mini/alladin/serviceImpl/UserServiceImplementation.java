@@ -193,6 +193,10 @@ public class UserServiceImplementation implements UserService {
     public void updateUserFromDto(int id, UserDTO userDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        Role role = roleRepository.findByRoleName(userDTO.getRole())
+                .orElseThrow(() -> new RuntimeException("Role not found: " + userDTO.getRole()));
+
+        user.setRole(role);
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail()); // optional, if allowed to change
@@ -211,6 +215,15 @@ public class UserServiceImplementation implements UserService {
         System.out.println("✅ [UNBLOCK] isActive: " + user.isActive());
     }
 
+    @Override
+    @Transactional
+    public void setPasswordForUserById(int id, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 
 
 
