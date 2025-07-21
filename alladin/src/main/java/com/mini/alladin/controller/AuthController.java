@@ -1,5 +1,6 @@
 package com.mini.alladin.controller;
 
+import com.mini.alladin.dto.UserCreateDTO;
 import com.mini.alladin.entity.Role;
 import com.mini.alladin.entity.User;
 import com.mini.alladin.repository.RoleRepository;
@@ -15,10 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -82,12 +80,8 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public String register(@RequestParam String firstName,
-                           @RequestParam String lastName,
-                           @RequestParam String email,
-                           @RequestParam String password) {
-
-        if (userRepository.existsByEmail(email)) {
+    public String register(@ModelAttribute("userCreateDTO") UserCreateDTO dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
             return "redirect:/register?error=email_exists";
         }
 
@@ -95,16 +89,16 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("TRADER role not found"));
 
         User newUser = new User();
-        newUser.setFirstName(firstName);
-        newUser.setLastName(lastName);
-        newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setFirstName(dto.getFirstName());
+        newUser.setLastName(dto.getLastName());
+        newUser.setEmail(dto.getEmail());
+        newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         newUser.setRole(traderRole);
         newUser.setActive(true);
 
         userRepository.save(newUser);
-
         return "redirect:/login?registered=true";
     }
+
 
 }
