@@ -5,6 +5,9 @@ import com.mini.alladin.dto.UserCreateDTO;
 import com.mini.alladin.dto.UserDTO;
 import com.mini.alladin.entity.User;
 import com.mini.alladin.service.UserService;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,12 +72,28 @@ public class UserController {
     }
 
 
+
     @GetMapping("/unblock/{id}")
-    @ResponseBody
-    public String unblockUser(@PathVariable int id) {
+    public void unblockUser(@PathVariable int id, HttpServletResponse response) throws IOException {
+        System.out.println("🔓 [UNBLOCK] Controller hit for user ID: " + id);
+
+        SecurityContextHolder.clearContext(); // ✅ clean auth
+
         userService.unblockUserById(id);
-        return "✅ Your account has been successfully unblocked. You can now log in.";
+
+        Cookie jwtCookie = new Cookie("jwt", null);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(0);
+        response.addCookie(jwtCookie);
+
+        response.sendRedirect("/login?unblocked=true");
     }
+
+
+
+
+
 
 
 

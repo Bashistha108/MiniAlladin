@@ -8,7 +8,6 @@ import com.mini.alladin.repository.RoleRepository;
 import com.mini.alladin.repository.UserRepository;
 import com.mini.alladin.service.EmailService;
 import com.mini.alladin.service.UserService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,9 +17,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImplementation implements UserService {
@@ -198,14 +199,18 @@ public class UserServiceImplementation implements UserService {
         userRepository.save(user);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void unblockUserById(int id) {
+        System.out.println("🛠 [UNBLOCK] Service called for user ID: " + id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         user.setActive(true);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user); // 🔥 persist now
+        System.out.println("✅ [UNBLOCK] isActive: " + user.isActive());
     }
+
 
 
 
