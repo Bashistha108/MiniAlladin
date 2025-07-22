@@ -1,2 +1,0 @@
-- User Register with google -> db saved -> cannot log in as isActive false -> gets a email with link -> unblocks ->then login
-- Dummy email register -> db saved but cannot login -> admin scaltet frei -> login
