@@ -20,9 +20,41 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * To save user + generate JWT after login
- * Called after successful Google login.
- * */
+ * ---------------------------------------------------------
+ * OAuth2LoginSuccessHandler
+ * ---------------------------------------------------------
+ * This class defines the logic that runs immediately after a
+ * successful Google OAuth2 login.
+ *
+ * Responsibilities:
+ *  - Extract user information (email, name, picture) from the OAuth2User
+ *  - Check if the user already exists in the database
+ *      - If not, create a new user with TRADER role
+ *  - Generate a JWT token for the authenticated user
+ *  - Store the JWT token in a secure HTTP-only cookie
+ *  - Redirect the user to the correct dashboard based on their role
+ *
+ * Why JWT is generated here:
+ *  - Google login only authenticates the user once
+ *  - We use JWT to keep the user logged in across requests
+ *  - JWT contains email and role and is validated on every request
+ *
+ * Connected to:
+ *  - CustomOAuth2UserService → fetches basic user info from Google
+ *  - JwtTokenProvider → generates the signed JWT
+ *  - UserRepository → checks or saves user data
+ *  - RoleRepository → assigns default TRADER role for new users
+ *
+ * This class is linked in SecurityConfig under:
+ *  .oauth2Login().successHandler(oAuth2LoginSuccessHandler)
+ *
+ * Note:
+ *  - After this handler runs, Spring does NOT maintain session
+ *    We must rely on the JWT for future user identification.
+ *
+ * @author Bashistha Joshi
+ */
+
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -69,9 +101,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // Spring Security User(not entity) object for token generation
         // Creates a Spring Security User(not entity) object temporarily in memory — just to generate a JWT token.
+        // Because token generation expects userDetails
+        // UserDetails describe the logged in user (not entity)
         org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                "",
+                user.getEmail(), // ← the email we will put into the token
+                "",              // ← password (we don’t need it for token generation)
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName()))
         );
 
@@ -89,7 +123,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         System.out.println("✅ Google login successful!");
         System.out.println("Logged in user: " + email);
 
-        // Redirect to dashboard
         if (user.getRole().getRoleId() == 2) {
             response.sendRedirect("/trader/trader-dashboard");
         } else {

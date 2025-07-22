@@ -12,6 +12,6 @@ public class DashboardController {
     }
     @GetMapping("/admin/admin-dashboard")
     public String adminDashboard() {
-        return "admin-dashboard"; // creates admin_dashboard.html
+        return "admin-dashboard";
     }
 }

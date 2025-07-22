@@ -11,21 +11,37 @@ import java.security.Key;
 import java.util.Date;
 
 /**
- * This class is responsible for:
- *  - Creating JWT tokens after login
- *  - Validating incoming JWT tokens
- *  - Extracting user info (email) from token
+ * ---------------------------------------------------------
+ * JwtTokenProvider
+ * ---------------------------------------------------------
+ * This class is responsible for all operations related to
+ * JSON Web Tokens (JWT) in the Mini-Alladin application.
  *
+ * Responsibilities:
+ *  - Generate JWT tokens after successful authentication
+ *  - Validate JWT tokens on incoming requests
+ *  - Extract user details (email) from tokens
  *
- *  To generate and validate JWT tokens
+ * JWT ensures stateless authentication by embedding
+ *     user identity (email) into a digitally signed token.
+ *
+ * This class uses:
+ *  - A secret signing key from application.properties
+ *  - An expiration time to control token validity
+ *
+ * Used in:
+ *  - AuthController (manual login)
+ *  - OAuth2LoginSuccessHandler (Google login)
+ *  - JwtAuthenticationFilter (token validation on every request)
+ *
+ * NOTE:
+ *  - Tokens are signed with HMAC SHA512
+ *  - Token structure: header.payload.signature
+ *  - If the signature is invalid or token is expired, it is rejected
+ *
+ * @author Bashistha Joshi
  */
 
-/**
- * The person logs in using Google.
- * Backend checks if this person already exists in DB.
- * If not, add them to list and give them the TRADER role.
- * Give them a unique JWT token.
- * */
 @Component
 public class JwtTokenProvider {
     // From application.properties
@@ -38,6 +54,7 @@ public class JwtTokenProvider {
 
 
     // This method is used to create the secret key used to sign (and later verify) your JWTs.
+    // In this program we have not used this method but in real life project should be used instead of using secret key directly
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
@@ -52,6 +69,7 @@ public class JwtTokenProvider {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis()+jwtExpirationMs))
+                // better would be .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }

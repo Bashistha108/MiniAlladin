@@ -15,71 +15,107 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Heart of Spring Security.
- * Here we define:
- *              - which endpoints are public
- *              - which require login
- *              - how to authenticate
- * */
+/*
+   ---------1---------
+   Heart of security.
+   Main configuration class where we define:
+   - Public / protected / role-based endpoints
+   - Enable JWT and OAuth2
+   - Register filters
+   - Disable session-based login
+   - Hook in login success handlers
+
+   Always create this first when setting up Spring Security.
+   Everything else connects here.
+*/
 @Configuration
 public class SecurityConfig {
 
+    // Bean to encrypt passwords using BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Fetches Google user info after successful OAuth2 login
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
 
+    // Defines what to do after successful Google login (generate JWT, redirect, etc.)
     @Autowired
     private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
+    // Loads user details from DB for form login and JWT validation
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    // Custom filter to validate JWT on every request
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /*
+       Core method that tells Spring Security how to secure the application.
+
+       Defines:
+       - Which endpoints are public, protected, or role-restricted
+       - What login methods to support (Form Login, Google OAuth2, JWT)
+       - Logout behavior
+       - Stateless vs Session
+       - Which custom filters to include
+
+       CSRF (Cross Site Request Forgery):
+       - Normally protects against cookie/session attacks
+       - Not needed when using stateless JWT, so we disable it
+   */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF — we're using JWT, not sessions
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless: no server sessions
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/auth/login", "/register", "/auth/register", "/oauth2/**","/", "/api/users/unblock/**").permitAll()
+                        .requestMatchers("/login", "/auth/login", "/register",
+                                         "/auth/register", "/oauth2/**","/",
+                                         "/api/users/unblock/**")
+                                            .permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/trader/**").hasRole("TRADER")
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login") // use the same custom login page
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler(oAuth2LoginSuccessHandler)
+                .oauth2Login(oauth2 -> oauth2  // Enable Google login
+                        .loginPage("/login") // Use our custom login page instead of default Spring form
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) // After Google login, fetch user info with our service
+                        .successHandler(oAuth2LoginSuccessHandler) // What to do after login success (e.g. create user, set JWT)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout") // optional, default is /logout
                         .logoutSuccessHandler((request, response, authentication) -> {
                             // Delete JWT cookie
-                            Cookie cookie = new Cookie("jwt", null);
-                            cookie.setPath("/");
-                            cookie.setMaxAge(0);
-                            response.addCookie(cookie);
+                            Cookie cookie = new Cookie("jwt", null); // Same name as the JWT cookie
+                            cookie.setPath("/"); // Match path so browser knows which cookie to replace
+                            cookie.setMaxAge(0); // Expire immediately
+                            response.addCookie(cookie); // Add the "delete cookie" to response
 
-                            response.sendRedirect("/login");
+                            response.sendRedirect("/login");// Redirect to login page after logout
                         })
                 )
-                .authenticationProvider(daoAuthenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(daoAuthenticationProvider()) // Support form login via DB (using UserDetailsService + PasswordEncoder)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Validate JWT before Spring handles login
         return http.build();
     }
 
+    /*
+       Expose AuthenticationManager as a Spring bean so we can @Autowired it in AuthController.
+       Required for manual login: authenticationManager.authenticate(...)
+    */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /*
+      Tells Spring how to verify login credentials (email/password).
+      Uses our custom user details service + password encoder.
+   */
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

@@ -9,7 +9,6 @@ import com.mini.alladin.security.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +19,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+/**
+ * This class handles actual login/register POST logic
+ * - authenticates email and password during login
+ * - creates and validated jwt tokens
+ * - fetches roles and users from db
+ * - hashes password when registering a user
+ * */
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
@@ -39,6 +45,11 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Gets trigerred when user submits login form
+     * Form fields are sent and spring bind them using @RequestParam
+     * HttpServletResponse is used to setJWT as cookie
+     * */
     @PostMapping("/login")
     public String login(@RequestParam String email,
                         @RequestParam String password,
@@ -52,7 +63,7 @@ public class AuthController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
             if (!userDetails.isEnabled()) {
-                return "redirect:/login?blocked=true"; // ✅ show blocked msg
+                return "redirect:/login?blocked=true";
             }
 
             String jwt = jwtTokenProvider.generateToken(userDetails);
@@ -72,7 +83,7 @@ public class AuthController {
             }
 
         } catch (org.springframework.security.authentication.BadCredentialsException e) {
-            return "redirect:/login?error=true"; // ✅ show invalid credentials
+            return "redirect:/login?error=true"; // show invalid credentials
         } catch (Exception e) {
             return "redirect:/login?error=true"; // fallback
         }

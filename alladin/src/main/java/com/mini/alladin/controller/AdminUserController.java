@@ -30,6 +30,7 @@ public class AdminUserController {
         return "admin-manage-users";
     }
 
+    // To disable block and delete buttons for self
     private boolean isSelf(int targetId, UserDetails currentUser) {
         UserDTO current = userService.getUserByEmail(currentUser.getUsername());
         return current.getUserId() == targetId;
@@ -83,7 +84,7 @@ public class AdminUserController {
             userService.setPasswordForUserById(id, newPassword);
         }
 
-        // 🔥 FORCE logout + JWT cleanup if it's your own account and you changed email
+        // FORCE logout + JWT cleanup if it's your own account and you changed email
         if (isSelfUpdate && !updatedUser.getEmail().equals(currentUser.getUsername())) {
             SecurityContextHolder.clearContext();
 
@@ -104,7 +105,7 @@ public class AdminUserController {
     @GetMapping("/adduser")
     public String showAddUserForm(Model model) {
         model.addAttribute("userCreateDTO", new UserCreateDTO());
-        return "admin-user-add"; // the thymeleaf template
+        return "admin-user-add";
     }
 
     @PostMapping("/adduser")

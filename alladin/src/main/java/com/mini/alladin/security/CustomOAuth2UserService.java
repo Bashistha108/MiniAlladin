@@ -12,16 +12,36 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 /**
- * This service is triggered automatically by Spring Security after a successful Google login
- * It will:
-      Fetch the user's email and name from Google
-      Check if the user already exists in your DB
-      If not, create a new user with the TRADER role
+ * ---------------------------------------------------------
+ * CustomOAuth2UserService
+ * ---------------------------------------------------------
+ * This service is automatically triggered by Spring Security
+ * after a successful Google OAuth2 login.
+ *
+ * Responsibilities:
+ *  - Fetch user profile info (email, first name, last name) from Google
+ *  - Check if the user already exists in the database
+ *      - If user does NOT exist, create a new one with the TRADER role
+ *      - If user already exists, return the existing user
+ *  - This service handles only data-related logic (user creation)
+ *    and does NOT generate JWT or redirect (that’s the handler's job)
+ *
+ * Connected to:
+ *  - Used in SecurityConfig under:
+ *    .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService)
+ *  - OAuth2LoginSuccessHandler receives the returned OAuth2User
+ *    and handles authentication/token logic
+ *
+ * Design Note:
+ *  - This class keeps DB creation logic separate from authentication logic
+ *  - Makes the code easier to maintain and test
+ *
+ * This does NOT handle token generation or cookie setting.
+ *     That is handled in OAuth2LoginSuccessHandler.
+ *
+ * @author Bashistha Joshi
+ */
 
-  ------ To get full Google user info
-
- After Google login, this class fetches the user's email, name, picture, etc. from Google. It lets you customize what happens when the user logs in.
- * */
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 

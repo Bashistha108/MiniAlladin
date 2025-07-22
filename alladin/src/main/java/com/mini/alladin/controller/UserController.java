@@ -3,21 +3,15 @@ package com.mini.alladin.controller;
 
 import com.mini.alladin.dto.UserCreateDTO;
 import com.mini.alladin.dto.UserDTO;
-import com.mini.alladin.entity.User;
 import com.mini.alladin.service.UserService;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,7 +26,7 @@ public class UserController {
 
 
 
-
+    //  Create user from API (uses DTO)
     @PostMapping("/create-user")
     public UserDTO createUser(@RequestBody UserCreateDTO dto) {
         return userService.createUser(dto);
@@ -75,18 +69,21 @@ public class UserController {
 
     @GetMapping("/unblock/{id}")
     public void unblockUser(@PathVariable int id, HttpServletResponse response) throws IOException {
-        System.out.println("🔓 [UNBLOCK] Controller hit for user ID: " + id);
+        System.out.println("[UNBLOCK] Controller hit for user ID: " + id);
 
-        SecurityContextHolder.clearContext(); // ✅ clean auth
+        // Clear session security context
+        SecurityContextHolder.clearContext();
 
+        // Set isActive = true in DB
         userService.unblockUserById(id);
-
+        // Remove old JWT cookie
         Cookie jwtCookie = new Cookie("jwt", null);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(0);
         response.addCookie(jwtCookie);
 
+        // Redirect to login page with success msg (in thymeleaf param.unblocked)
         response.sendRedirect("/login?unblocked=true");
     }
 

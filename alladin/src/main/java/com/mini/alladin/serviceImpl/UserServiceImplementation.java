@@ -150,7 +150,7 @@ public class UserServiceImplementation implements UserService {
             throw new RuntimeException("No email found in authentication");
         }
 
-        System.out.println("✅ Logged-in email: " + email);
+        System.out.println("Logged-in email: " + email);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -206,13 +206,13 @@ public class UserServiceImplementation implements UserService {
     @Override
     @Transactional
     public void unblockUserById(int id) {
-        System.out.println("🛠 [UNBLOCK] Service called for user ID: " + id);
+        System.out.println("[UNBLOCK] Service called for user ID: " + id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         user.setActive(true);
-        userRepository.saveAndFlush(user); // 🔥 persist now
-        System.out.println("✅ [UNBLOCK] isActive: " + user.isActive());
+        userRepository.saveAndFlush(user); // stores in memory and immediately pushes to db (faster than save())
+        System.out.println(" [UNBLOCK] isActive: " + user.isActive());
     }
 
     @Override

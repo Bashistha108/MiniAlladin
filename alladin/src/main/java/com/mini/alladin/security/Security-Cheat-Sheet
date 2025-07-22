@@ -1,0 +1,102 @@
+✅ MINI-ALLADIN SPRING SECURITY — CHEAT SHEET
+
+🔐 LOGIN OPTIONS:
+1. Email + Password login → /auth/login
+2. Google OAuth2 login → /oauth2/authorization/google
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📄 FILE RESPONSIBILITY
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  SecurityConfig.java
+- Central security setup
+- Defines:
+    • Public endpoints
+    • Role-based access
+    • JWT filter + OAuth2 configs
+- Registers:
+    • JwtAuthenticationFilter
+    • CustomOAuth2UserService
+    • OAuth2LoginSuccessHandler
+    • DaoAuthenticationProvider
+
+2️⃣ AuthController.java
+- Handles /auth/login
+- Verifies user credentials
+- If OK: generate JWT + store in cookie
+- Redirect to /admin/... or /trader/...
+
+3️⃣ JwtTokenProvider.java
+- Generates JWT with email
+- Validates token
+- Extracts email from token
+- Uses secret + expiry from application.properties
+
+4️⃣ JwtAuthenticationFilter.java
+- Runs before every request
+- Checks for JWT:
+    • Authorization Header
+    • OR Cookie named "jwt"
+- If valid:
+    • Load user from DB
+    • Set Spring Security context
+
+5️⃣ CustomUserDetailsService.java
+- Loads user from DB by email
+- Wraps into CustomUserDetails
+
+6️⃣ CustomUserDetails.java
+- Adapter that maps our User entity → Spring Security format
+- Uses isActive() for blocked status
+
+7️⃣ CustomOAuth2UserService.java
+- Runs after Google login
+- Extracts email/name from Google
+- If user doesn't exist → creates one with TRADER role
+
+8️⃣ OAuth2LoginSuccessHandler.java
+- Runs after Google login success
+- Generates JWT
+- Adds cookie "jwt"
+- Redirects to correct dashboard based on role
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📤 LOGIN FLOW (EMAIL + PASSWORD)
+━━━━━━━━━━━━━━━━━━━━━━━
+User → /auth/login (POST)
+→ AuthController → AuthenticationManager
+→ CustomUserDetailsService → CustomUserDetails
+→ If success: generate JWT → store in cookie
+→ Redirect to /admin/... or /trader/...
+
+→ Future requests:
+→ JwtAuthenticationFilter → Validates token → Sets context → Access granted
+
+━━━━━━━━━━━━━━━━━━━━━━━
+🌐 LOGIN FLOW (GOOGLE OAUTH2)
+━━━━━━━━━━━━━━━━━━━━━━━
+User → /oauth2/authorization/google
+→ Google Login Success → CustomOAuth2UserService
+→ If user doesn't exist → save as TRADER
+→ OAuth2LoginSuccessHandler → generate JWT → store in cookie
+→ Redirect to /admin/... or /trader/...
+
+→ Future requests:
+→ JwtAuthenticationFilter → Validates token → Sets context → Access granted
+
+━━━━━━━━━━━━━━━━━━━━━━━
+🚫 BLOCKED USER HANDLING
+━━━━━━━━━━━━━━━━━━━━━━━
+- Blocked if isActive = false
+- Checked in:
+    • AuthController.java → blocks login
+    • JwtAuthenticationFilter.java → blocks token access
+- Blocked users get redirect to /login?blocked=true
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📬 UNBLOCK SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+- Admin can block/unblock users (toggle)
+- If blocked:
+    → Email sent with unblock link
+    → Clicking link → sets isActive = true

@@ -22,20 +22,21 @@ public class EmailServiceImplementation implements EmailService {
     @Override
     public void sendUnblockEmail(String to, String unblockLink) {
         try {
+            // MimeMessage represents full email
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
             helper.setTo(to);
-            helper.setSubject("Dein Konto wurde blockiert – Mini-Alladin");
-            String htmlContent = "<h2>Hallo!</h2>"
-                    + "<p>Dein Konto wurde blockiert.</p>"
-                    + "<p>Klicke auf folgenden Link, um es wieder zu aktivieren:</p>"
-                    + "<a href=\"" + unblockLink + "\">Konto entsperren</a>";
+            helper.setSubject("Your account has been blocked – Mini-Alladin");
+            String htmlContent = "<h2>Hello!</h2>"
+                    + "<p>Your account has been blocked.</p>"
+                    + "<p>Click the following link  to activate the account again:</p>"
+                    + "<a href=\"" + unblockLink + "\">Unblock Account</a>";
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("Fehler beim Senden der E-Mail", e);
+            throw new RuntimeException("Error when sending the email", e);
         }
     }
 }
