@@ -1,0 +1,8 @@
+Field injection not recommended because it cant tell us what our class depends on. But with constructor injection we can easily find out our dependencies.
+RestController -> returns JSON data
+Controller -> returns UI pages
+Hibernate -> SQL executor + object mapper
+Hibernate is Java ORM (Object Relational Mapping) tool.
+Maps Java Class Entity to database table
+Converts Java Objects into SQL rows
+Runs SQL in background
