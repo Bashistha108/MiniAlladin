@@ -36,22 +36,21 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // Fetches Google user info after successful OAuth2 login
     @Autowired
-    private CustomOAuth2UserService customOAuth2UserService;
-
-    // Defines what to do after successful Google login (generate JWT, redirect, etc.)
-    @Autowired
-    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-
-    // Loads user details from DB for form login and JWT validation
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-
-    // Custom filter to validate JWT on every request
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
+                          OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
+                          CustomUserDetailsService customUserDetailsService,
+                          JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+        this.customUserDetailsService = customUserDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     /*
        Core method that tells Spring Security how to secure the application.
@@ -79,6 +78,7 @@ public class SecurityConfig {
                                             .permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/trader/**").hasRole("TRADER")
+                        .requestMatchers("/api/stocks/**", "/admin/manage-stocks/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2  // Enable Google login
