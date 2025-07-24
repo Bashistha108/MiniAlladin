@@ -1,7 +1,9 @@
 package com.mini.alladin.controller;
 
 
+import com.mini.alladin.dto.StockDTO;
 import com.mini.alladin.dto.UserDTO;
+import com.mini.alladin.service.StockService;
 import com.mini.alladin.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,12 +19,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 public class TraderController {
 
+
+    private final UserService userService;
+    private final StockService stockService;
+
     @Autowired
-    private UserService userService;
+    public TraderController(UserService userService, StockService stockService) {
+        this.userService = userService;
+        this.stockService = stockService;
+    }
 
     @GetMapping("/profile")
     public String showProfileForm(@AuthenticationPrincipal UserDetails currentUser, Model model) {
@@ -58,7 +68,15 @@ public class TraderController {
             return null;
         }
 
-        return "redirect:/trader/trader-dashboard"; // ✅ safe default
+        return "redirect:/trader/trader-dashboard";
+    }
+
+
+    @GetMapping("/trader/stocks")
+    public String showAllStocks(Model model){
+        List<StockDTO> stocksDTOList = stockService.getAllStocks();
+        model.addAttribute("stocks", stocksDTOList);
+        return "trader-stocks";
     }
 
 

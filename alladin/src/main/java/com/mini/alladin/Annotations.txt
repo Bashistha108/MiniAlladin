@@ -17,6 +17,7 @@ Like @Component, but semantically clearer (used in the service layer).
 Spring auto-detects it and injects it into other beans.
 
 
+
 @Component
 Tells Spring: “Please detect this class and manage it in the application context.”
 Enables automatic dependency injection via @Autowired, constructor injection, etc.

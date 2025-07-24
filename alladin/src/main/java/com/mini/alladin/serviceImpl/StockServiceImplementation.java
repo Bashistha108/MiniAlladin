@@ -4,6 +4,7 @@ import com.mini.alladin.dto.StockCreateDTO;
 import com.mini.alladin.dto.StockDTO;
 import com.mini.alladin.entity.Stock;
 import com.mini.alladin.repository.StockRepository;
+import com.mini.alladin.service.StockPriceService;
 import com.mini.alladin.service.StockService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,12 @@ import java.util.stream.Collectors;
 public class StockServiceImplementation implements StockService {
 
     private final StockRepository stockRepository;
+    private final StockPriceService stockPriceService;
 
-    public StockServiceImplementation(StockRepository stockRepository) {
+    @Autowired
+    public StockServiceImplementation(StockRepository stockRepository, StockPriceService stockPriceService) {
         this.stockRepository = stockRepository;
+        this.stockPriceService = stockPriceService;
     }
 
     @Transactional
@@ -35,8 +39,13 @@ public class StockServiceImplementation implements StockService {
         stock.setName(stockCreateDTO.getName());
         stock.setExchange(stockCreateDTO.getExchange().toUpperCase());
         stock.setCurrency(stockCreateDTO.getCurrency().toUpperCase());
-        stock.setCurrentPrice(BigDecimal.valueOf(stockCreateDTO.getCurrentPrice()));
         stock.setSector(stockCreateDTO.getSector());
+        // Saving stock before saving its current price
+        stockRepository.save(stock);
+        // Set live price, User doesn't give the current price
+        double livePriceFromApi = stockPriceService.getStockPriceByStockId(stock.getStockId());
+        stock.setCurrentPrice(BigDecimal.valueOf(livePriceFromApi));
+
 
         return toDTO(stockRepository.save(stock));
     }
