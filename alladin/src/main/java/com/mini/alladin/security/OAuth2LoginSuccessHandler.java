@@ -120,7 +120,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        System.out.println("✅ Google login successful!");
+        System.out.println("Google login successful!");
         System.out.println("Logged in user: " + email);
 
         if (user.getRole().getRoleId() == 2) {

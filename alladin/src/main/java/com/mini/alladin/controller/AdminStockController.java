@@ -2,11 +2,13 @@ package com.mini.alladin.controller;
 
 import com.mini.alladin.dto.StockCreateDTO;
 import com.mini.alladin.dto.StockDTO;
+import com.mini.alladin.service.StockPriceService;
 import com.mini.alladin.service.StockService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -14,14 +16,33 @@ import java.util.List;
 public class AdminStockController {
 
     private final StockService stockService;
+    private final StockPriceService stockPriceService;
 
-    public AdminStockController(StockService stockService) {
+    public AdminStockController(StockService stockService, StockPriceService stockPriceService) {
         this.stockService = stockService;
+        this.stockPriceService = stockPriceService;
     }
 
     @GetMapping
     public String viewStocks(Model model) {
         List<StockDTO> stocks = stockService.getAllStocks();
+
+        for(StockDTO stockDTO : stocks){
+            String stockSymbol =  stockDTO.getSymbol();
+            double liveStockPrice = stockPriceService.getStockPriceBySymbol(stockSymbol);
+
+            // Convert DTO to CreateDTO to update the stock in db
+            StockCreateDTO stockCreateDTO = new StockCreateDTO();
+            stockCreateDTO.setSymbol(stockDTO.getSymbol());
+            stockCreateDTO.setCurrency(stockDTO.getCurrency());
+            stockCreateDTO.setExchange(stockDTO.getExchange());
+            stockCreateDTO.setSector(stockDTO.getSector());
+            stockCreateDTO.setCurrentPrice(liveStockPrice);
+            stockCreateDTO.setName(stockDTO.getName());
+            // updating in db
+            stockService.updateStockByStockId(stockDTO.getStockId(), stockCreateDTO);
+        }
+
         model.addAttribute("stocks", stocks);
         return "admin-manage-stocks";
     }

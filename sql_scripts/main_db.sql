@@ -43,6 +43,7 @@ CREATE TABLE stocks (
                         price_updated_at TIMESTAMP
 );
 
+--  !!!!!!!! Table Deleted, new created
 -- Portfolio Items
 CREATE TABLE portfolio_items (
                                  portfolio_item_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -56,6 +57,8 @@ CREATE TABLE portfolio_items (
                                  FOREIGN KEY (stock_id) REFERENCES stocks(stock_id)
 );
 
+
+--    !!!!!!!!!!!!!!!!!!   Table deleted , new Created
 -- Trades
 CREATE TABLE trades (
                         trade_id INT AUTO_INCREMENT PRIMARY KEY,
