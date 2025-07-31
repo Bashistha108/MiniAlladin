@@ -1,0 +1,78 @@
+[User clicks a stock]
+      ↓
+[Opens stock detail page]
+      ↓
+[Frontend subscribes to /topic/stock-price/{symbol}]
+      ↓
+[Backend fetches price every 10s via scheduler]
+      ↓
+[Backend pushes to /topic/stock-price/{symbol}]
+      ↓
+[Frontend sees auto-updated price — no refresh]
+
+
+
+1. Websocket Defined (endpoints for subscription) in WebSocketConfig.java
+2. Send the live Price to frontend using StockPriceWebSocketPublisher.java
+3. Live price logic implemented in LivePriceSchedulerService including how ofter to call the method
+4. Send the Stock Symbol from front end to backend and repeat
+
+Actually we fetch live price using api. WebSocket just updates the price in the frontend. Nothing more
+
+
+
+---------------------------------------------------------------------------------------------------------
+
+🔧 Purpose:
+    Display real-time stock prices on the stock detail page without refreshing the page, using WebSocket + STOMP and Finnhub API.
+
+⚙️ Key Components & Responsibilities:
+    1. WebSocketConfig.java (Backend)
+        Enables WebSocket support using STOMP protocol.
+        Defines:
+        /ws → WebSocket connection endpoint (used by frontend)
+        /topic/** → where backend sends messages
+        /app/** → where frontend can send messages (optional, not used yet)
+
+    2. LivePriceSchedulerServiceImplementation.java (Backend)
+        Runs every 10 seconds using @Scheduled(fixedRate = 10000)
+        Responsibilities:
+        Pulls latest live price using Finnhub API
+        Updates the stock price in the database
+        Sends the new price to frontend via WebSocket (/topic/stock-price/{symbol})
+
+    3. StockPriceWebSocketPublisher.java (Backend)
+        Sends the fetched price to the correct topic:
+        messagingTemplate.convertAndSend("/topic/stock-price/" + symbol, price);
+
+    4. StockPriceController.java (Backend)
+        Receives stock symbol from frontend:
+
+        POST /api/stocks/set-symbol?symbol=AAPL
+        Sets it in LivePriceSchedulerService so backend knows which stock to track
+
+    5. stock-detail.html (Frontend)
+        Injected with:
+        ${symbol} – stock symbol
+        ${price} – last saved price from DB
+        Opens a WebSocket connection using SockJS + STOMP
+        Subscribes to:
+        /topic/stock-price/{symbol}
+        When a price is received:
+        Compares with last price
+        Updates DOM
+        Animates up/down (green/red)
+
+
+🔄 Flow Summary
+
+    1. User opens stock detail page (e.g. AAPL)
+    2. Page shows latest DB price → WebSocket connection established
+    3. Frontend tells backend which stock to track (POST /set-symbol)
+    4. Backend starts pulling live prices from API every 10s
+    5. Backend saves new price → pushes it via WebSocket
+    6. Frontend receives updated price → updates UI instantly
+🧠 Important Clarification
+    ✅ Live price is fetched via API (not WebSocket)
+    ✅ WebSocket only broadcasts the already-fetched price to the frontend
+    ✅ This ensures efficiency and avoids API overuse
