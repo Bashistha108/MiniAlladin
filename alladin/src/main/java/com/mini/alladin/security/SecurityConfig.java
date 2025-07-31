@@ -74,7 +74,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/auth/login", "/register",
                                          "/auth/register", "/oauth2/**","/",
-                                         "/api/users/unblock/**")
+                                         "/api/users/unblock/**", "/ws/**",
+                                         "/topic/**", "/app/**", "/api/stocks/set-symbol")
                                             .permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/trader/**").hasRole("TRADER")

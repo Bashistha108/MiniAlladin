@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +24,7 @@ public class FinnhubApiClient {
         String url = "https://finnhub.io/api/v1/quote?symbol="+stockSymbol+"&token="+apiKey;
 
         try{
+
             // Use RestTemplate to make HTTP request and get raw response body as plain String as result
             RestTemplate restTemplate = new RestTemplate();
             // Save the raw response as String

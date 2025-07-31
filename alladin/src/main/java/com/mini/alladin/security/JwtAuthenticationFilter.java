@@ -45,6 +45,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
+
+        if (path.startsWith("/ws") || path.contains("websocket") || path.contains("xhr") || path.contains("info")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
         if (path.startsWith("/api/users/unblock/")) {
             // Skip filter for unblock link (public endpoint)
             filterChain.doFilter(request, response);

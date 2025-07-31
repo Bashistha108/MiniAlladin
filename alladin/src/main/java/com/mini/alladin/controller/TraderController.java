@@ -3,6 +3,7 @@ package com.mini.alladin.controller;
 
 import com.mini.alladin.dto.StockDTO;
 import com.mini.alladin.dto.UserDTO;
+import com.mini.alladin.entity.Stock;
 import com.mini.alladin.service.StockService;
 import com.mini.alladin.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -77,6 +78,19 @@ public class TraderController {
         List<StockDTO> stocksDTOList = stockService.getAllStocks();
         model.addAttribute("stocks", stocksDTOList);
         return "trader-stocks";
+    }
+
+    /**
+     * Renders the stock-detail page with live price tracking
+     * URL: /trader/view?symbol=AAPL
+     */
+    @GetMapping("/trader/view")
+    public String viewStock(@RequestParam String symbol, Model model) {
+        StockDTO stockDTO = stockService.getStockBySymbol(symbol);
+
+        model.addAttribute("price", stockDTO.getCurrentPrice());
+        model.addAttribute("symbol", symbol);
+        return "stock-detail";
     }
 
 
