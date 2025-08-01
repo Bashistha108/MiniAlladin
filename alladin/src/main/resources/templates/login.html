@@ -32,6 +32,21 @@
     <h4 class="text-center mb-3">Login</h4>
 
     <form th:action="@{/auth/login}" method="POST">
+
+        <div th:if="${param.error}" class="alert alert-danger text-center mb-3">
+            Invalid email or password.
+        </div>
+
+
+        <div th:if="${param.blocked}" class="alert alert-danger text-center mb-3">
+            Your account has been blocked. Please check your email.
+        </div>
+
+        <div th:if="${param.unblocked}" class="alert alert-success text-center mb-3">
+            Your account has been unblocked. Please login again.
+        </div>
+
+
         <div class="mb-3">
             <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
         </div>

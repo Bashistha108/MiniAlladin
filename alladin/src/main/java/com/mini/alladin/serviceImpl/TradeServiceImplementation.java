@@ -4,6 +4,8 @@ import com.mini.alladin.entity.Stock;
 import com.mini.alladin.entity.Trade;
 import com.mini.alladin.entity.User;
 import com.mini.alladin.repository.TradeRepository;
+import com.mini.alladin.repository.UserRepository;
+import com.mini.alladin.service.StockPriceService;
 import com.mini.alladin.service.TradeService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +19,14 @@ import java.util.List;
 public class TradeServiceImplementation implements TradeService {
 
     private final TradeRepository tradeRepository;
+    private final StockPriceService stockPriceService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public TradeServiceImplementation(TradeRepository tradeRepository) {
+    public TradeServiceImplementation(TradeRepository tradeRepository,  StockPriceService stockPriceService, UserRepository userRepository) {
         this.tradeRepository = tradeRepository;
+        this.stockPriceService = stockPriceService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -64,26 +70,68 @@ public class TradeServiceImplementation implements TradeService {
 
     @Override
     @Transactional
-    public Trade closeTrade(int tradeId, BigDecimal closePrice) {
+    public Trade closeTrade(int tradeId) {
+        // Fetch trade from db
         Trade trade = getTradeById(tradeId);
 
+        // Check if already closed
         if (!trade.isOpen()) {
             throw new RuntimeException("Trade already closed");
         }
 
+        // Get live close Price using stockId via stockPriceService
+        BigDecimal closePrice = (BigDecimal.valueOf(stockPriceService.getStockPriceByStockId(trade.getStock().getStockId())));
+
+        // Set Closing Fields
         trade.setClosePrice(closePrice);
         trade.setCloseTimestamp(LocalDateTime.now());
         trade.setOpen(false);
 
-
-        BigDecimal pnl;
+        // Calculate P/L
+        BigDecimal profitLoss;
         if (trade.getTradeType().equalsIgnoreCase("LONG")) {
-            pnl = closePrice.subtract(trade.getOpenPrice()).multiply(trade.getQuantity());
+            profitLoss = closePrice.subtract(trade.getOpenPrice()).multiply(trade.getQuantity());
         } else {
-            pnl = trade.getOpenPrice().subtract(closePrice).multiply(trade.getQuantity());
+            profitLoss = trade.getOpenPrice().subtract(closePrice).multiply(trade.getQuantity());
         }
 
-        trade.setProfitLoss(pnl);
+        trade.setProfitLoss(profitLoss);
         return tradeRepository.save(trade);
     }
+
+    @Override
+    @Transactional
+    public Trade buyStock(User user, Stock stock, BigDecimal quantity, String direction) {
+        BigDecimal currentPrice = BigDecimal.valueOf(
+                stockPriceService.getStockPriceByStockId(stock.getStockId())
+        );
+
+        BigDecimal totalCost = currentPrice.multiply(quantity);
+
+        // Check if user has enough balance
+        if (user.getBalance().compareTo(totalCost) < 0) {
+            throw new RuntimeException("Not enough balance to buy this stock.");
+        }
+
+        // Deduct balance
+        user.setBalance(user.getBalance().subtract(totalCost));
+        userRepository.save(user);
+
+        // Create and save trade
+        Trade trade = new Trade();
+        trade.setUser(user);
+        trade.setStock(stock);
+        trade.setQuantity(quantity);
+        trade.setOpenPrice(currentPrice);
+        trade.setTotalInvested(totalCost);
+        trade.setTradeType(direction); // LONG / SHORT
+        trade.setOpen(true);
+        trade.setOpenTimestamp(LocalDateTime.now());
+
+        return tradeRepository.save(trade);
+    }
+
+
 }
+
+

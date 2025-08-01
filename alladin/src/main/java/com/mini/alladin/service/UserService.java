@@ -16,6 +16,9 @@ public interface UserService {
     UserDTO getUserById(int id);
     UserDTO getUserByEmail(String email);
 
+    User getUserEntityById(int id);
+    User getUserEntityByEmail(String email);
+
     UserDTO updateUser(int id, UserCreateDTO userCreateDTO);
 
     void deleteUserById(int id);

@@ -101,6 +101,16 @@ public class StockServiceImplementation implements StockService {
         stockRepository.delete(stock);
     }
 
+    @Override
+    public Stock getStockEntityById(int stockId) {
+        return stockRepository.findByStockId(stockId).orElseThrow(() -> new RuntimeException("Stock not found with id " + stockId));
+    }
+
+    @Override
+    public Stock getStockEntityBySymbol(String symbol) {
+        return stockRepository.findBySymbol(symbol).orElseThrow(() -> new RuntimeException("Stock not found with symbol " + symbol));
+    }
+
     private StockDTO toDTO(Stock stock){
         StockDTO stockDTO = new StockDTO();
         stockDTO.setStockId(stock.getStockId());

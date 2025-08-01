@@ -87,6 +87,16 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    public User getUserEntityById(int id) {
+        return userRepository.findByUserId(id).orElseThrow(()->new RuntimeException("User not found with id: "+id));
+    }
+
+    @Override
+    public User getUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("User not found with email: "+email));
+    }
+
+    @Override
     @Transactional
     public UserDTO updateUser(int id, UserCreateDTO userCreateDTO) {
         User user = userRepository.findById(id).orElseThrow(()->new RuntimeException("User not found with id: "+id));
@@ -238,6 +248,7 @@ public class UserServiceImplementation implements UserService {
         userDTO.setActive(user.isActive());
         userDTO.setUpdatedAt(user.getUpdatedAt());
         userDTO.setCreatedAt(user.getCreatedAt());
+        userDTO.setBalance(user.getBalance());
         return userDTO;
     }
 

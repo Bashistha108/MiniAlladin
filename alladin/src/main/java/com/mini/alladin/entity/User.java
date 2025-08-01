@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -54,6 +56,10 @@ public class User {
 
     @Column(name = "profile_picture")
     private String profilePicture;
+
+    @Column(name = "balance", nullable = false)
+    private BigDecimal balance = BigDecimal.valueOf(10000); // default starting amount
+
 
 
     public void setActive(boolean isActive) {
