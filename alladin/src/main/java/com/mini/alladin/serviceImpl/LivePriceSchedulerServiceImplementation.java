@@ -45,7 +45,7 @@ public class LivePriceSchedulerServiceImplementation implements LivePriceSchedul
      * You can expand this to loop over multiple symbols if needed.
      * We didn't passed Symbol as parameter because @Scheduled functions does not take parameters
      */
-    @Scheduled(fixedRate = 3000)
+    @Scheduled(fixedRate = 1000)
     @Transactional
     public void updateStockPriceForWebSocket() {
 

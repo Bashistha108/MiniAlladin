@@ -2,6 +2,7 @@ package com.mini.alladin.service;
 
 import com.mini.alladin.dto.StockCreateDTO;
 import com.mini.alladin.dto.StockDTO;
+import com.mini.alladin.entity.Stock;
 
 import java.util.List;
 
@@ -13,4 +14,7 @@ public interface StockService {
     StockDTO updateStockByStockId(int stockId, StockCreateDTO stockCreateDTO);
     void deleteStockById(int stockId);
     void deleteStockBySymbol(String symbol);
+
+    Stock getStockEntityById(int stockId);
+    Stock getStockEntityBySymbol(String symbol);
 }

@@ -15,5 +15,7 @@ public interface TradeService {
     List<Trade> getOpenTradesByUser(User user);
     List<Trade> getOpenTradesByUserAndStock(User user, Stock stock);
     Trade getTradeById(int id);
-    Trade closeTrade(int tradeId, BigDecimal closePrice);
+    Trade closeTrade(int tradeId);
+    Trade buyStock(User user, Stock stock, BigDecimal quantity, String direction);
+
 }

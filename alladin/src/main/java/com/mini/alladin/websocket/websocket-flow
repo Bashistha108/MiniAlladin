@@ -65,7 +65,6 @@ Actually we fetch live price using api. WebSocket just updates the price in the 
 
 
 🔄 Flow Summary
-
     1. User opens stock detail page (e.g. AAPL)
     2. Page shows latest DB price → WebSocket connection established
     3. Frontend tells backend which stock to track (POST /set-symbol)

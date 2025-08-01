@@ -4,6 +4,7 @@ package com.mini.alladin.controller;
 import com.mini.alladin.dto.StockDTO;
 import com.mini.alladin.dto.UserDTO;
 import com.mini.alladin.entity.Stock;
+import com.mini.alladin.service.StockPriceService;
 import com.mini.alladin.service.StockService;
 import com.mini.alladin.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -28,11 +29,13 @@ public class TraderController {
 
     private final UserService userService;
     private final StockService stockService;
+    private final StockPriceService stockPriceService;
 
     @Autowired
-    public TraderController(UserService userService, StockService stockService) {
+    public TraderController(UserService userService, StockService stockService, StockPriceService stockPriceService) {
         this.userService = userService;
         this.stockService = stockService;
+        this.stockPriceService = stockPriceService;
     }
 
     @GetMapping("/profile")
@@ -86,9 +89,11 @@ public class TraderController {
      */
     @GetMapping("/trader/view")
     public String viewStock(@RequestParam String symbol, Model model) {
-        StockDTO stockDTO = stockService.getStockBySymbol(symbol);
+        Stock stock = stockService.getStockEntityBySymbol(symbol);
+        double price = stockPriceService.getStockPriceByStockId(stock.getStockId());
 
-        model.addAttribute("price", stockDTO.getCurrentPrice());
+        model.addAttribute("stock", stock);
+        model.addAttribute("price", stock.getCurrentPrice());
         model.addAttribute("symbol", symbol);
         return "stock-detail";
     }

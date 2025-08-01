@@ -28,10 +28,10 @@
       <td th:text="${stock.currency}"></td>
       <td class="text-center align-middle" style="width: 160px;">
         <div class="d-flex justify-content-center gap-2">
-          <a th:href="@{'/trader/buy/' + ${stock.stockId}}" class="btn btn-outline-success btn-sm px-3 py-2">
+          <a th:href="@{'/trader/trade/' + ${stock.stockId}}" class="btn btn-outline-success btn-sm px-3 py-2">
             Buy
           </a>
-          <a th:href="@{'/trader/sell/' + ${stock.stockId}}" class="btn btn-outline-danger btn-sm px-3 py-2">
+          <a th:href="@{'/trader/trade/' + ${stock.stockId}}" class="btn btn-outline-danger btn-sm px-3 py-2">
             Sell
           </a>
           <a th:href="@{'/trader/view?symbol=' + ${stock.symbol}}" class="btn btn-outline-primary btn-sm px-3 py-2">
@@ -47,6 +47,7 @@
 
   <br><br>
   <a th:href="@{'/trader/trader-dashboard'}" class="btn btn-outline-dark btn-sm px-3 py-2">Back to Dashboard</a>
+  <br><br><br>
 </div>
 </body>
 </html>

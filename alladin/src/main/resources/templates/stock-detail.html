@@ -33,6 +33,7 @@
             width: 400px;
             max-width: 90vw;
             border: 1px solid #4b5563;
+            position: relative;
         }
 
         .stock-symbol {
@@ -147,10 +148,6 @@
             animation: pulse 2s infinite;
         }
 
-        .stock-card {
-            position: relative;
-        }
-
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
@@ -187,7 +184,6 @@
 
     <div class="stock-symbol" th:text="${symbol}">AAPL</div>
 
-
     <div class="price-container">
         <div id="live-price" class="price">
             <span id="price-value" th:text="'$' + ${price}">Loading...</span>
@@ -195,40 +191,30 @@
     </div>
 
     <div class="action-buttons">
-        <button class="btn btn-buy">Buy</button>
-        <button class="btn btn-sell">Sell</button>
+        <a th:href="@{'/trader/trade/' + ${stock.stockId} + '?direction=LONG'}" class="btn btn-buy">Buy</a>
+        <a th:href="@{'/trader/trade/' + ${stock.stockId} + '?direction=SHORT'}" class="btn btn-sell">Sell</a>
     </div>
+
 </div>
 
 <script th:inline="javascript">
     const symbol = /*[[${symbol}]]*/ 'AAPL';
     let lastPrice = parseFloat(/*[[${price}]]*/ '0');
 
-    console.log("Stock symbol from backend: ", symbol);
-
     const socket = new SockJS('/ws');
     const stompClient = Stomp.over(socket);
 
-    console.log("Opening WebSocket...");
-
     stompClient.connect({}, () => {
-        console.log("WebSocket connected");
-
         const topic = '/topic/stock-price/' + symbol;
-        console.log("Subscribing to topic:", topic);
 
         stompClient.subscribe(topic, (message) => {
             const newPrice = parseFloat(message.body);
             const priceEl = document.getElementById('price-value');
             const priceWrapper = document.getElementById('live-price');
-
-            // Clear previous animations
             priceWrapper.className = 'price';
 
             if (!isNaN(newPrice)) {
-                // Force reflow to ensure classes are cleared
                 void priceWrapper.offsetWidth;
-
                 if (newPrice > lastPrice) {
                     priceWrapper.classList.add('price-up');
                 } else if (newPrice < lastPrice) {
@@ -242,22 +228,9 @@
             }
         });
 
-        // Tell backend to start tracking this stock
-        fetch(`/api/stocks/set-symbol?symbol=${symbol}`, { method: "POST" })
-            .then(() => console.log("Backend notified to track:", symbol))
-            .catch(err => console.error("Failed to notify backend:", err));
+        fetch(`/api/stocks/set-symbol?symbol=${symbol}`, { method: "POST" });
     });
 
-    // Add click handlers for buy/sell buttons
-    document.querySelector('.btn-buy').addEventListener('click', () => {
-        console.log('Buy clicked for', symbol);
-        // Add your buy logic here
-    });
-
-    document.querySelector('.btn-sell').addEventListener('click', () => {
-        console.log('Sell clicked for', symbol);
-        // Add your sell logic here
-    });
 </script>
 
 </body>

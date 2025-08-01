@@ -2,6 +2,7 @@ package com.mini.alladin.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -25,5 +26,6 @@ public class UserDTO {
     private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private BigDecimal balance;
 
 }

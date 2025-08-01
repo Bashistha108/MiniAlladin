@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Buy/Sell Stock</title>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5" style="max-width: 500px;">
+    <!-- Header -->
+    <div class="text-center mb-4">
+
+        <h2 class="mt-3">
+            <span class="text-muted">Ticker:</span>
+            <span class="fw-bold" th:text="${symbol}">AAPL</span>
+        </h2>
+        <br>
+
+        <h3 class="mt-2 text-primary">
+            Live Price: <span id="price-value" th:text="'$' + ${price}">Loading...</span>
+        </h3>
+    </div>
+
+    <!-- Trade Form -->
+    <form method="post" th:action="@{/trader/trade/submit}">
+        <input type="hidden" name="stockId" th:value="${stock.stockId}" />
+        <input type="hidden" id="livePriceInput" th:value="${price}" />
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Quantity</label>
+            <input type="number" name="quantity" id="quantity" step="0.01" min="0.01" required class="form-control" placeholder="Enter quantity">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">OR Total Amount ($)</label>
+            <input type="number" id="amount" step="0.01" min="0.01" class="form-control" placeholder="Enter total amount">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Action</label>
+            <select name="direction" class="form-select" required>
+                <option value="LONG" th:selected="${direction == 'LONG'}">Buy</option>
+                <option value="SHORT" th:selected="${direction == 'SHORT'}">Sell</option>
+            </select>
+        </div>
+        <br><br>
+        <button type="submit" class="btn btn-outline-success w-100 fw-bold">Submit Trade</button>
+    </form>
+    <br><br>
+    <div class="text-center mt-4">
+        <a th:href="@{/trader/trader-dashboard}" class="btn btn-outline-dark btn-sm">← Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+
+<script th:inline="javascript">
+    const symbol = /*[[${symbol}]]*/ 'AAPL';
+    let lastPrice = parseFloat(/*[[${price}]]*/ '0');
+
+    const priceEl = document.getElementById('price-value');
+    const priceInput = document.getElementById('livePriceInput');
+    const quantityInput = document.getElementById('quantity');
+    const amountInput = document.getElementById('amount');
+
+    // Typing state protection
+    let isTypingQuantity = false;
+    let isTypingAmount = false;
+
+    quantityInput.addEventListener('focus', () => isTypingQuantity = true);
+    quantityInput.addEventListener('blur', () => isTypingQuantity = false);
+    amountInput.addEventListener('focus', () => isTypingAmount = true);
+    amountInput.addEventListener('blur', () => isTypingAmount = false);
+
+    quantityInput.addEventListener('input', () => {
+        const qty = parseFloat(quantityInput.value);
+        const price = parseFloat(priceInput.value);
+        if (!isNaN(qty) && price > 0 && !isTypingAmount) {
+            amountInput.value = (qty * price).toFixed(2);
+        }
+    });
+
+    amountInput.addEventListener('input', () => {
+        const amt = parseFloat(amountInput.value);
+        const price = parseFloat(priceInput.value);
+        if (!isNaN(amt) && price > 0 && !isTypingQuantity) {
+            quantityInput.value = (amt / price).toFixed(4);
+        }
+    });
+
+    function updateLivePrice(newPrice) {
+        lastPrice = newPrice;
+        priceEl.innerText = '$' + newPrice.toFixed(2);
+        priceInput.value = newPrice;
+    }
+
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, () => {
+        const topic = '/topic/stock-price/' + symbol;
+        stompClient.subscribe(topic, (message) => {
+            const newPrice = parseFloat(message.body);
+            if (!isNaN(newPrice)) {
+                updateLivePrice(newPrice);
+
+                // Only auto-update amount if user isn't typing
+                const qty = parseFloat(quantityInput.value);
+                if (!isNaN(qty) && !isTypingQuantity && !isTypingAmount) {
+                    amountInput.value = (qty * newPrice).toFixed(2);
+                }
+            }
+        });
+
+        fetch(`/api/stocks/set-symbol?symbol=${symbol}`, { method: 'POST' });
+    });
+</script>
+
+</body>
+</html>
