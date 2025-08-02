@@ -18,4 +18,5 @@ public interface TradeService {
     Trade closeTrade(int tradeId);
     Trade buyStock(User user, Stock stock, BigDecimal quantity, String direction);
 
+    List<Trade> getClosedTradesByUser(User user);
 }

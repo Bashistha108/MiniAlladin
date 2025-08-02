@@ -1,6 +1,7 @@
 package com.mini.alladin.controller;
 
 import com.mini.alladin.entity.Stock;
+import com.mini.alladin.entity.Trade;
 import com.mini.alladin.entity.User;
 import com.mini.alladin.service.StockPriceService;
 import com.mini.alladin.service.StockService;
@@ -17,8 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
-
-
+import java.util.List;
 
 
 @Controller
@@ -68,5 +68,14 @@ public class TradeController {
 
         return "redirect:/trader/portfolio";
     }
+
+    @GetMapping("/trader/closed-trades")
+    public String viewClosedTrades(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        User user = userService.getUserEntityByEmail(userDetails.getUsername());
+        List<Trade> closedTrades = tradeService.getClosedTradesByUser(user);
+        model.addAttribute("closedTrades", closedTrades);
+        return "trader-closed-trades";
+    }
+
 
 }

@@ -71,18 +71,16 @@ public class TradeServiceImplementation implements TradeService {
     @Override
     @Transactional
     public Trade closeTrade(int tradeId) {
-        // Fetch trade from db
         Trade trade = getTradeById(tradeId);
 
-        // Check if already closed
         if (!trade.isOpen()) {
             throw new RuntimeException("Trade already closed");
         }
 
-        // Get live close Price using stockId via stockPriceService
-        BigDecimal closePrice = (BigDecimal.valueOf(stockPriceService.getStockPriceByStockId(trade.getStock().getStockId())));
+        BigDecimal closePrice = BigDecimal.valueOf(
+                stockPriceService.getStockPriceByStockId(trade.getStock().getStockId())
+        );
 
-        // Set Closing Fields
         trade.setClosePrice(closePrice);
         trade.setCloseTimestamp(LocalDateTime.now());
         trade.setOpen(false);
@@ -96,6 +94,13 @@ public class TradeServiceImplementation implements TradeService {
         }
 
         trade.setProfitLoss(profitLoss);
+
+        // Return invested amount + P/L
+        BigDecimal returnedAmount = trade.getTotalInvested().add(profitLoss);
+        User user = trade.getUser();
+        user.setBalance(user.getBalance().add(returnedAmount));
+        userRepository.save(user);
+
         return tradeRepository.save(trade);
     }
 
@@ -130,6 +135,12 @@ public class TradeServiceImplementation implements TradeService {
 
         return tradeRepository.save(trade);
     }
+
+    @Override
+    public List<Trade> getClosedTradesByUser(User user) {
+        return tradeRepository.findByUserAndIsOpenFalse(user);
+    }
+
 
 
 }

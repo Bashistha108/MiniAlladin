@@ -9,6 +9,55 @@
 <div class="container mt-4">
   <h2 class="mb-4 text-center">📊 My Portfolio</h2>
 
+  <!-- Summary Metrics: 5 Cards in a Row -->
+  <div class="row text-center mb-4">
+
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card border-dark">
+        <div class="card-body py-2">
+          <h6 class="card-title">Realized Equity</h6>
+          <p class="card-text text-dark fw-bold fs-6" th:text="${portfolioMetrics['realizedEquity']} + ' €'">0.00 €</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card border-dark">
+        <div class="card-body py-2">
+          <h6 class="card-title">Unrealized Equity</h6>
+          <p class="card-text text-dark fw-bold fs-6" th:text="${portfolioMetrics['unrealizedEquity']} + ' €'">0.00 €</p>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="col-md-2 col-sm-6 mb-2">
+      <div class="card border-success">
+        <div class="card-body py-2">
+          <h6 class="card-title">Realized P/L</h6>
+          <p class="card-text text-success fw-bold fs-6" th:text="${portfolioMetrics['realizedPL']} + ' €'">0.00 €</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6 mb-2">
+      <div class="card border-primary">
+        <div class="card-body py-2">
+          <h6 class="card-title">Unrealized P/L</h6>
+          <p class="card-text text-primary fw-bold fs-6" th:text="${portfolioMetrics['unrealizedPL']} + ' €'">0.00 €</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6 mb-2">
+      <div class="card border-dark">
+        <div class="card-body py-2">
+          <h6 class="card-title">Total P/L</h6>
+          <p class="card-text text-dark fw-bold fs-6" th:text="${portfolioMetrics['totalPL']} + ' €'">0.00 €</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Open Trades Table -->
   <table class="table table-bordered table-hover">
     <thead class="table-light">
     <tr>
@@ -38,10 +87,12 @@
     </tr>
     </tbody>
   </table>
-  <br><br>
-  <div class="text-end mt-4">
-    <a href="/trader/trader-dashboard" class="btn btn-outline-dark">Back to Dashboard</a>
+  <br>
+  <div class="mt-4 d-flex justify-content-between">
+    <a th:href="@{'/trader/closed-trades'}" class="btn btn-outline-dark">View Closed Trades</a>
+    <a href="/trader/trader-dashboard" class="btn btn-outline-secondary">← Back to Dashboard</a>
   </div>
+
   <br><br>
 </div>
 </body>
