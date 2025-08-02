@@ -33,9 +33,13 @@ public class PortfolioController {
     @GetMapping
     public String showPortfolio(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUserEntityByEmail(userDetails.getUsername());
+
         model.addAttribute("portfolioList", portfolioService.getPortfolioSummary(user));
+        model.addAttribute("portfolioMetrics", portfolioService.calculatePortfolioMetrics(user));
+
         return "portfolio-overview";
     }
+
 
     @GetMapping("/{stockId}")
     public String showPortfolioDetails(@PathVariable int stockId, Model model, @AuthenticationPrincipal UserDetails userDetails) {

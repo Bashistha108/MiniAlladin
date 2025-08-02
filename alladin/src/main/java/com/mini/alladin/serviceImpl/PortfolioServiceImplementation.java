@@ -6,6 +6,7 @@ import com.mini.alladin.entity.Stock;
 import com.mini.alladin.entity.Trade;
 import com.mini.alladin.entity.User;
 import com.mini.alladin.repository.StockRepository;
+import com.mini.alladin.repository.TradeRepository;
 import com.mini.alladin.service.PortfolioService;
 import com.mini.alladin.service.StockPriceService;
 import com.mini.alladin.service.TradeService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,14 +26,16 @@ public class PortfolioServiceImplementation implements PortfolioService {
     private final TradeService tradeService;
     private final StockPriceService stockPriceService;
     private final StockRepository stockRepository;
+    private final TradeRepository tradeRepository;
 
     @Autowired
     public PortfolioServiceImplementation(TradeService tradeService,
                                           StockPriceService stockPriceService,
-                                          StockRepository stockRepository) {
+                                          StockRepository stockRepository, TradeRepository tradeRepository) {
         this.tradeService = tradeService;
         this.stockPriceService = stockPriceService;
         this.stockRepository = stockRepository;
+        this.tradeRepository = tradeRepository;
     }
 
 
@@ -115,5 +119,42 @@ public class PortfolioServiceImplementation implements PortfolioService {
                             .openTimestamp(trade.getOpenTimestamp())
                             .build();
                 }).toList();
+    }
+
+    @Override
+    public Map<String, BigDecimal> calculatePortfolioMetrics(User user) {
+        List<Trade> openTrades = tradeRepository.findByUserAndIsOpenTrue(user);
+        List<Trade> closedTrades = tradeRepository.findByUserAndIsOpenFalse(user);
+
+        BigDecimal realizedPL = closedTrades.stream()
+                .map(Trade::getProfitLoss)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal realizedEquity = user.getBalance().add(realizedPL);
+
+        BigDecimal unrealizedPL = openTrades.stream()
+                .map(trade -> {
+                    BigDecimal livePrice = BigDecimal.valueOf(
+                            stockPriceService.getStockPriceByStockId(trade.getStock().getStockId())
+                    );
+                    if (trade.getTradeType().equalsIgnoreCase("LONG")) {
+                        return livePrice.subtract(trade.getOpenPrice()).multiply(trade.getQuantity());
+                    } else {
+                        return trade.getOpenPrice().subtract(livePrice).multiply(trade.getQuantity());
+                    }
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal unrealizedEquity = realizedEquity.add(unrealizedPL);
+        BigDecimal totalPL = realizedPL.add(unrealizedPL);
+
+        Map<String, BigDecimal> result = new HashMap<>();
+        result.put("realizedPL", realizedPL);
+        result.put("realizedEquity", realizedEquity);
+        result.put("unrealizedPL", unrealizedPL);
+        result.put("unrealizedEquity", unrealizedEquity);
+        result.put("totalPL", totalPL);
+
+        return result;
     }
 }

@@ -17,4 +17,7 @@ public interface TradeRepository extends JpaRepository<Trade, Integer> {
     List<Trade> findByUserAndIsOpenTrue(User user);
     List<Trade> findByUserAndStockAndIsOpenTrue(User user, Stock stock);
 
+    List<Trade> findByUserAndIsOpenFalse(User user);
+
+
 }
