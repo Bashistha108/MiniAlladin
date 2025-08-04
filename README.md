@@ -1,9 +1,9 @@
-# Mini-Alladin 🧞
+# Mini-Alladin
 
 A simplified investment management system inspired by BlackRock's Aladdin. It tracks live stock prices using AlphaVantage and Finnhub api. Users can purchase and sell the stocks, manage their portfolio and many more. Also includes Google OAuth2 and JWT for security.
 Built with Java, Websocket, Thymeleaf,  Spring Boot, MySQL, and modern software architecture practices.
 
-## 📦 Features
+## Features
 
 - User Management (Admin & Trader)
 - Portfolio tracking
@@ -13,7 +13,7 @@ Built with Java, Websocket, Thymeleaf,  Spring Boot, MySQL, and modern software 
 - Post/feed system for users
 - Audit logging
 
-## 🧱 Tech Stack
+## Tech Stack
 - Jira
 - Java 17 / Spring Boot 3
 - MySQL + JPA/Hibernate
@@ -22,7 +22,7 @@ Built with Java, Websocket, Thymeleaf,  Spring Boot, MySQL, and modern software 
 - Linux (Ubuntu)
 - Jira (task tracking)
 
-## 🗂 Project Structure
+## Project Structure
 
 MiniAlladin/
 ├── alladin/ # Spring Boot backend
@@ -32,6 +32,6 @@ MiniAlladin/
 ├── README.md
 
 
-## 🧠 Author
+## Author
 
-- **Bashistha Joshi** — backend dev in training 💻🚀
+- **Bashistha Joshi** — backend dev in training 
