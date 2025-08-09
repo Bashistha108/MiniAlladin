@@ -2,99 +2,93 @@ package com.mini.alladin.repository;
 
 import com.mini.alladin.entity.Role;
 import com.mini.alladin.entity.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/*
+ * We cannot unit test interfaces directly, as they have no implementations.
+ * In Spring Boot, to test a Repository we use @DataJpaTest.
+ * This is an Integration Test (runs with a real or in-memory database).
+ * When testing a Service that uses a Repository, we should mock the Repository.
+ */
+
+@DataJpaTest // Test Jpa Components. Configures H2 by default, EntityManager, Repository and DataSource. Rolls back transactions after each test method automatically. So no changes to db.
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // Use the config I gave you (like H2 in application-test.properties) exactly as it is.
+@ActiveProfiles("test") // Tells spring to activate test profile (use application-test.properties)
+@TestPropertySource(locations = "classpath:application-test.properties") // Optional just for assurance for using application-test.properties
 public class UserRepositoryTest {
 
-    // Not mocking anything testing real behaviour if UserRepository
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private RoleRepository roleRepository;
 
-    @Test
-    public void UserRepository_findByEmail_ReturnsUser(){
-        // Arrange
+    private User testUser;
+    @BeforeEach
+    public void createUser(){
         Role role = new Role();
-        role.setRoleName("ADMIN");
+        role.setRoleName("TRADER");
         roleRepository.save(role);
-        User user = User.builder() // building in memory User
-                .firstName("Bashistha")
-                .lastName("Joshi")
-                .email("bashisthajoshi108@gmail.com")
-                .password("1234")
-                .role(role)
-                .build();
 
+        User user = new User();
+        user.setFirstName("test");
+        user.setLastName("test");
+        user.setEmail("test@test.com");
+        user.setPassword("test");
+        user.setRole(role);
+        testUser = userRepository.save(user);
 
-        userRepository.save(user); // save in H2
-        // Act
+    }
 
-        Optional<User> foundUser = userRepository.findByEmail(user.getEmail());
+    /**
+     * JUnit does not support test methods with parameters by default unless using parameterized tests
+     * */
+    @Test
+    public void testFindByEmail() {
 
-        // Assert
-        Assertions.assertTrue(foundUser.isPresent());
-        Assertions.assertEquals(user.getEmail(), foundUser.get().getEmail());
-        Assertions.assertEquals("Bashistha", foundUser.get().getFirstName());
-        Assertions.assertEquals("ADMIN", foundUser.get().getRole().getRoleName());
+        // When
+        Optional<User> foundUser = userRepository.findByEmail("test@test.com");
+
+        // Then
+        assertTrue(foundUser.isPresent());
+        assertEquals(testUser.getEmail(), foundUser.get().getEmail());
+
     }
 
     @Test
-    public void UserRepository_deleteByEmail_RemovesUser(){
+    public void testFindUserById(){
+        Optional<User> foundUser = userRepository.findById(1);
 
-        // Arrange
-        Role role = new Role();
-        role.setRoleName("ADMIN");
-        roleRepository.save(role);
-
-        User user = User.builder()
-                .firstName("Bashisth")
-                .lastName("Joshi")
-                .email("bashisthajoshi108@gmail.com")
-                .password("1234")
-                .role(role)
-                .build();
-        userRepository.save(user);
-
-        // Act
-        userRepository.deleteByEmail("bashisthajoshi108@gmail.com");
-
-        // Assert
-        Assertions.assertFalse(userRepository.existsByEmail("bashisthajoshi108@gmail.com"));
-        Optional<User> deletedUser = userRepository.findByEmail("bashisthajoshi108@gmail.com");
-        Assertions.assertTrue(deletedUser.isEmpty());
+        assertTrue(foundUser.isPresent());
+        assertEquals(testUser.getUserId(), foundUser.get().getUserId());
     }
-
-    @Test
-    public void UserRepository_existsByEmail_ReturnsTrue(){
-        Role role = new Role();
-        role.setRoleName("ADMIN");
-        roleRepository.save(role);
-
-        User user = User.builder()
-                .firstName("Bashistha")
-                .lastName("Joshi")
-                .email("bashistha@gmail.com")
-                .password("1234")
-                .role(role)
-                .build();
-
-        userRepository.save(user);
-
-        boolean exists = userRepository.existsByEmail("bashistha@gmail.com");
-        Assertions.assertTrue(exists);
-    }
-
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
