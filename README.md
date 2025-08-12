@@ -1,3 +1,5 @@
+www.minialladin.com
+
 # Mini-Alladin
 
 A simplified investment management system inspired by BlackRock's Aladdin. It tracks live stock prices using AlphaVantage and Finnhub api. Users can purchase and sell the stocks, manage their portfolio and many more. Also includes Google OAuth2 and JWT for security.
@@ -25,11 +27,11 @@ Built with Java, Websocket, Thymeleaf,  Spring Boot, MySQL, and modern software 
 ## Project Structure
 
 MiniAlladin/
-├── alladin/ # Spring Boot backend
-├── ERD.pdf # Database design
-├── sql_scripts/ # DB schema
-├── .gitignore
-├── README.md
+   alladin/ # Spring Boot backend
+   ERD.pdf # Database design
+   sql_scripts/ # DB schema
+   .gitignore
+   README.md
 
 
 ## Author
